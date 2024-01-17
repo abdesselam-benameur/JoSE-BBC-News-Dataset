@@ -1,3 +1,13 @@
+# TP1 - Document clustering avec le modèle JOSE sur BBC-News dataset
+
+Ce TP est réalisé dans le cadre d'évaluation du module mixture-models et co-clustering du master 2 MLDS - Machine Learning for Data Science.
+
+Equipe :
+
+-   Abdesselam BENAMEUR
+
+-   Hakim IGUENI
+
 # TODOs
 
 ```{r}
@@ -34,9 +44,8 @@ url <- "https://cifre.s3.eu-north-1.amazonaws.com/bbc_dataset.mat"
 # Définir le nom du fichier de destination.
 destination_file <- "bbc_dataset.mat"
 # Télécharger le fichier.
-download.file(url, destfile = destination_file, method = "auto")
-install.packages("R.matlab")
-bbc_dataset <- readMat(destination_file)
+# download.file(url, destfile = destination_file, method = "auto")
+bbc_dataset <- readMat(url)
 bbc_jose <- bbc_dataset$jose
 bbc_doc_term <- bbc_dataset$doc.term
 bbc_labels <- as.vector(bbc_dataset$labels)
@@ -50,7 +59,22 @@ dim(bbc_jose)
 dim(bbc_doc_term)
 ```
 
-Quelle est la dimension de chaque dataset (nombre documents, nombre de mots/taille de la dimension) ? Le 1er dataset (la matrice document-terme, la variable bbc_doc_term) - nombre documents: 2225 - nombre de mots: 2000 Le 2eme dataset (la matrice des embeddings des documents, la variable bbc_jose) - nombre documents: 2225 - taille de la dimension: 100
+1.  **Quelle est la dimension de chaque dataset (nombre documents, nombre de mots/taille de la dimension) ?**
+
+-   Le 1er dataset (la matrice document-terme, la variable bbc_doc_term)
+
+    -   nombre documents: 2225
+
+    -   nombre de mots: 2000
+
+-   Le 2eme dataset (la matrice des embeddings des documents, la variable bbc_jose)
+
+    -   nombre documents: 2225
+
+    -   taille de la dimension: 100
+
+2.  **Exécuter tous les algorithmes de clustering avec le vrai nombre de classes qui est 5.**
+3.  **Afficher les matrices de confusion obtenues à chaque application d'un algorithme de clustering.**
 
 # Clustering of the first Dataset (bbc_doc_term)
 
@@ -243,4 +267,7 @@ paste("ARI:", ari.hclust)
 
 ```{r}
 
+```
+
+```{r}
 ```
