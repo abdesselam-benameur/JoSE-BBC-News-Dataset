@@ -70,8 +70,8 @@ dim(bbc_doc_term)
 # we use nbclust, and k = 5
 library(NbClust)
 set.seed(123)
-# res.kmeans <- NbClust(bbc_jose, distance = "euclidean", min.nc = 2, max.nc = 10, method = "kmeans")
-res.kmeans <- kmeans(bbc_jose, 5, nstart = 25)
+res.kmeans <- NbClust(bbc_jose, distance = "euclidean", min.nc = 4, max.nc = 6, method = "kmeans")
+#res.kmeans <- kmeans(bbc_jose, 5, nstart = 25)
 # TODO: we are asked to use NbClust, not the function kmeans !!!
 
 # # we use fviz_cluster to visualize the clusters without points labels
@@ -80,10 +80,16 @@ res.kmeans <- kmeans(bbc_jose, 5, nstart = 25)
 #              palette = "jco", ggtheme = theme_minimal(),
 #              main = "K-means clustering of documents")
 
+
+```
+
+```{r}
 # confusion matrix
-clusters.kmeans <- res.kmeans$cluster
+clusters.kmeans <- res.kmeans$Best.partition
 table(clusters.kmeans, bbc_labels)
 ```
+
+En utilisant le package Nbclust avec plusieurs valeurs de k = {4, 5, 6} pour le nombre de clusters, on conclut que le meilleur clustering est celui avec K=5.
 
 ## Spherical K-means
 
