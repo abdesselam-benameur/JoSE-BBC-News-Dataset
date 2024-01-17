@@ -45,6 +45,7 @@ url <- "https://cifre.s3.eu-north-1.amazonaws.com/bbc_dataset.mat"
 destination_file <- "bbc_dataset.mat"
 # Télécharger le fichier.
 # download.file(url, destfile = destination_file, method = "auto")
+# TODO: change url to destination_file
 bbc_dataset <- readMat(url)
 bbc_jose <- bbc_dataset$jose
 bbc_doc_term <- bbc_dataset$doc.term
@@ -74,7 +75,18 @@ dim(bbc_doc_term)
     -   taille de la dimension: 100
 
 2.  **Exécuter tous les algorithmes de clustering avec le vrai nombre de classes qui est 5.**
+
 3.  **Afficher les matrices de confusion obtenues à chaque application d'un algorithme de clustering.**
+
+4.  **Pour mesurer la qualité du clustering obtenu, on s\'appuiera sur les mesures externes : NMI et ARI.**
+
+5.  **Commenter les résultats obtenus.**
+
+6.  ~[***Questions\ optionnelles\ :***]{.underline}~
+
+    ~[***a.\ Toute\ utilisation\ d\'un\ algorithme\ de\ clustering\ supplémentaire\ sera\ apprécié.***]{.underline}~
+
+    ~[***b.\ Une\ analyse\ sur\ le\ nombre\ de\ clusters\ peut\ être\ envisagée\ à\ partir\ de\ vos\ connaissances.***]{.underline}~
 
 # Clustering of the first Dataset (bbc_doc_term)
 
@@ -83,8 +95,8 @@ dim(bbc_doc_term)
 ```{r}
 # we use nbclust, and k = 5
 set.seed(123)
-# res.kmeans <- NbClust(bbc_jose, distance = "euclidean", min.nc = 2, max.nc = 10, method = "kmeans")
-res.kmeans <- kmeans(bbc_doc_term, 5, nstart = 25)
+res.kmeans <- NbClust(bbc_jose, distance = "euclidean", min.nc = 4, max.nc = 6, method = "kmeans")
+# res.kmeans <- kmeans(bbc_doc_term, 5, nstart = 25)
 # TODO: we are asked to use NbClust, not the function kmeans !!!
 
 # # we use fviz_cluster to visualize the clusters without points labels
@@ -92,9 +104,11 @@ res.kmeans <- kmeans(bbc_doc_term, 5, nstart = 25)
 # fviz_cluster(res.kmeans, data = bbc_jose, ellipse.type = "norm", 
 #              palette = "jco", ggtheme = theme_minimal(),
 #              main = "K-means clustering of documents")
+```
 
+```{r}
 # confusion matrix
-clusters.kmeans <- res.kmeans$cluster
+clusters.kmeans <- res.kmeans$Best.partition
 table(clusters.kmeans, bbc_labels)
 
 # NMI
