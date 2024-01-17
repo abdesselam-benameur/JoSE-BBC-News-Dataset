@@ -1,6 +1,4 @@
----
-
----
+# TP1 - Document clustering avec le modèle JOSE sur BBC-News dataset
 
 Ce TP est réalisé dans le cadre d'évaluation du module mixture-models et co-clustering du master 2 MLDS - Machine Learning for Data Science.
 
@@ -10,12 +8,19 @@ Equipe :
 
 -   Hakim IGUENI
 
+# TODOs
+
+```{r}
+# TODO: TREAT ALL THE TODOs IN THIS FILE
+```
+
 # Install packages
 
 ```{r}
 install.packages("NbClust")
-install.packages("factoextra")
+# install.packages("factoextra")
 install.packages("skmeans")
+install.packages("movMF")
 ```
 
 # Load data
@@ -56,6 +61,7 @@ dim(bbc_doc_term)
 
 ```{r}
 # TODO: explore different values of the parameters of skmeans and the other clustering algorithms
+# TODO: try different values of k and try to prove that k=5 is the best one
 ```
 
 ## K-means
@@ -64,7 +70,9 @@ dim(bbc_doc_term)
 # we use nbclust, and k = 5
 library(NbClust)
 set.seed(123)
+# res.kmeans <- NbClust(bbc_jose, distance = "euclidean", min.nc = 2, max.nc = 10, method = "kmeans")
 res.kmeans <- kmeans(bbc_jose, 5, nstart = 25)
+# TODO: we are asked to use NbClust, not the function kmeans !!!
 
 # # we use fviz_cluster to visualize the clusters without points labels
 # library(factoextra)
@@ -73,7 +81,8 @@ res.kmeans <- kmeans(bbc_jose, 5, nstart = 25)
 #              main = "K-means clustering of documents")
 
 # confusion matrix
-table(res.kmeans$cluster, bbc_labels)
+clusters.kmeans <- res.kmeans$cluster
+table(clusters.kmeans, bbc_labels)
 ```
 
 ## Spherical K-means
@@ -84,8 +93,21 @@ library(skmeans)
 set.seed(123)
 res.skmeans <- skmeans(bbc_jose, 5)
 # confusion matrix
-table(res.skmeans$cluster, bbc_labels)
+clusters.skmeans <- res.skmeans$cluster
+table(clusters.skmeans, bbc_labels)
+```
 
+## von-Mises Fisher Mixture Model
+
+```{r}
+# we use movMF, and k = 5
+library(movMF)
+set.seed(123)
+res.movMF <- movMF(bbc_jose, 5, kappa=list(common = TRUE))
+# TODO: explore the other params of movMF
+clusters.movMF <- apply(res.movMF$P,1,which.max)
+# confusion matrix
+table(clusters.movMF, bbc_labels)
 ```
 
 ## Hierarchical clustering
@@ -94,7 +116,8 @@ table(res.skmeans$cluster, bbc_labels)
 # we use hclust, and k = 5
 res.hclust <- hclust(dist(bbc_jose), method = "ward.D2")
 # confusion matrix
-table(cutree(res.hclust, 5), bbc_labels)
+clusters.hclust <- cutree(res.hclust, 5)
+table(clusters.hclust, bbc_labels)
 ```
 
 ```{r}
