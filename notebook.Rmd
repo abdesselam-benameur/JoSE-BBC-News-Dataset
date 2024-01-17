@@ -4,16 +4,29 @@
 # TODO: TREAT ALL THE TODOs IN THIS FILE
 ```
 
-# Install packages
+# Install Packages
 
 ```{r}
 install.packages("NbClust")
 # install.packages("factoextra")
 install.packages("skmeans")
 install.packages("movMF")
+install.packages("R.matlab")
+install.packages("aricode")
 ```
 
-# Load data
+# Import Packages
+
+```{r}
+library(NbClust)
+# library(factoextra)
+library(skmeans)
+library(movMF)
+library(R.matlab)
+library(aricode)
+```
+
+# Load Data
 
 ```{r}
 # Le lien pour télécharger les deux formats de données ainsi que les labels.
@@ -23,7 +36,6 @@ destination_file <- "bbc_dataset.mat"
 # Télécharger le fichier.
 download.file(url, destfile = destination_file, method = "auto")
 install.packages("R.matlab")
-library(R.matlab)
 bbc_dataset <- readMat(destination_file)
 bbc_jose <- bbc_dataset$jose
 bbc_doc_term <- bbc_dataset$doc.term
@@ -40,7 +52,99 @@ dim(bbc_doc_term)
 
 Quelle est la dimension de chaque dataset (nombre documents, nombre de mots/taille de la dimension) ? Le 1er dataset (la matrice document-terme, la variable bbc_doc_term) - nombre documents: 2225 - nombre de mots: 2000 Le 2eme dataset (la matrice des embeddings des documents, la variable bbc_jose) - nombre documents: 2225 - taille de la dimension: 100
 
-# Clustering
+# Clustering of the first Dataset (bbc_doc_term)
+
+## K-means
+
+```{r}
+# we use nbclust, and k = 5
+set.seed(123)
+# res.kmeans <- NbClust(bbc_jose, distance = "euclidean", min.nc = 2, max.nc = 10, method = "kmeans")
+res.kmeans <- kmeans(bbc_doc_term, 5, nstart = 25)
+# TODO: we are asked to use NbClust, not the function kmeans !!!
+
+# # we use fviz_cluster to visualize the clusters without points labels
+# library(factoextra)
+# fviz_cluster(res.kmeans, data = bbc_jose, ellipse.type = "norm", 
+#              palette = "jco", ggtheme = theme_minimal(),
+#              main = "K-means clustering of documents")
+
+# confusion matrix
+clusters.kmeans <- res.kmeans$cluster
+table(clusters.kmeans, bbc_labels)
+
+# NMI
+nmi.kmeans <- NMI(clusters.kmeans, bbc_labels)
+paste("NMI:", nmi.kmeans)
+
+# ARI
+ari.kmeans <- ARI(clusters.kmeans, bbc_labels)
+paste("ARI:", ari.kmeans)
+```
+
+## Spherical K-means
+
+```{r}
+# we use skmeans, and k = 5
+set.seed(123)
+res.skmeans <- skmeans(bbc_doc_term, 5)
+
+# confusion matrix
+clusters.skmeans <- res.skmeans$cluster
+table(clusters.skmeans, bbc_labels)
+
+# NMI
+nmi.skmeans <- NMI(clusters.skmeans, bbc_labels)
+paste("NMI:", nmi.skmeans)
+
+# ARI
+ari.skmeans <- ARI(clusters.skmeans, bbc_labels)
+paste("ARI:", ari.skmeans)
+```
+
+## von-Mises Fisher Mixture Model
+
+```{r}
+# we use movMF, and k = 5
+set.seed(123)
+res.movMF <- movMF(bbc_doc_term, 5, kappa=list(common = TRUE))
+# TODO: explore the other params of movMF
+clusters.movMF <- apply(res.movMF$P,1,which.max)
+
+# confusion matrix
+table(clusters.movMF, bbc_labels)
+
+# NMI
+nmi.movMF <- NMI(clusters.movMF, bbc_labels)
+paste("NMI:", nmi.movMF)
+
+# ARI
+ari.movMF <- ARI(clusters.movMF, bbc_labels)
+paste("ARI:", ari.movMF)
+```
+
+## Hierarchical Clustering
+
+```{r}
+# we use hclust, and k = 5
+res.hclust <- hclust(dist(bbc_doc_term), method = "ward.D2")
+
+# confusion matrix
+print("Confusion matrix")
+clusters.hclust <- cutree(res.hclust, 5)
+table(clusters.hclust, bbc_labels)
+
+# NMI
+nmi.hclust <- NMI(clusters.hclust, bbc_labels)
+paste("NMI:", nmi.hclust)
+
+# ARI
+
+ari.hclust <- ARI(clusters.hclust, bbc_labels)
+paste("ARI:", ari.hclust)
+```
+
+# Clustering of second Dataset (bbc_jose)
 
 ```{r}
 # TODO: explore different values of the parameters of skmeans and the other clustering algorithms
@@ -51,7 +155,6 @@ Quelle est la dimension de chaque dataset (nombre documents, nombre de mots/tail
 
 ```{r}
 # we use nbclust, and k = 5
-library(NbClust)
 set.seed(123)
 # res.kmeans <- NbClust(bbc_jose, distance = "euclidean", min.nc = 2, max.nc = 10, method = "kmeans")
 res.kmeans <- kmeans(bbc_jose, 5, nstart = 25)
@@ -66,42 +169,78 @@ res.kmeans <- kmeans(bbc_jose, 5, nstart = 25)
 # confusion matrix
 clusters.kmeans <- res.kmeans$cluster
 table(clusters.kmeans, bbc_labels)
+
+# NMI
+nmi.kmeans <- NMI(clusters.kmeans, bbc_labels)
+paste("NMI:", nmi.kmeans)
+
+# ARI
+ari.kmeans <- ARI(clusters.kmeans, bbc_labels)
+paste("ARI:", ari.kmeans)
 ```
 
 ## Spherical K-means
 
 ```{r}
 # we use skmeans, and k = 5
-library(skmeans)
 set.seed(123)
 res.skmeans <- skmeans(bbc_jose, 5)
+
 # confusion matrix
 clusters.skmeans <- res.skmeans$cluster
 table(clusters.skmeans, bbc_labels)
+
+# NMI
+nmi.skmeans <- NMI(clusters.skmeans, bbc_labels)
+paste("NMI:", nmi.skmeans)
+
+# ARI
+ari.skmeans <- ARI(clusters.skmeans, bbc_labels)
+paste("ARI:", ari.skmeans)
 ```
 
 ## von-Mises Fisher Mixture Model
 
 ```{r}
 # we use movMF, and k = 5
-library(movMF)
 set.seed(123)
 res.movMF <- movMF(bbc_jose, 5, kappa=list(common = TRUE))
 # TODO: explore the other params of movMF
 clusters.movMF <- apply(res.movMF$P,1,which.max)
+
 # confusion matrix
 table(clusters.movMF, bbc_labels)
+
+# NMI
+nmi.movMF <- NMI(clusters.movMF, bbc_labels)
+paste("NMI:", nmi.movMF)
+
+# ARI
+ari.movMF <- ARI(clusters.movMF, bbc_labels)
+paste("ARI:", ari.movMF)
 ```
 
-## Hierarchical clustering
+## Hierarchical Clustering
 
 ```{r}
 # we use hclust, and k = 5
 res.hclust <- hclust(dist(bbc_jose), method = "ward.D2")
+
 # confusion matrix
+print("Confusion matrix")
 clusters.hclust <- cutree(res.hclust, 5)
 table(clusters.hclust, bbc_labels)
+
+# NMI
+nmi.hclust <- NMI(clusters.hclust, bbc_labels)
+paste("NMI:", nmi.hclust)
+
+# ARI
+
+ari.hclust <- ARI(clusters.hclust, bbc_labels)
+paste("ARI:", ari.hclust)
 ```
 
 ```{r}
+
 ```
