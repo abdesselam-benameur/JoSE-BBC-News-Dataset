@@ -1,0 +1,91 @@
+# Install packages
+
+```{r}
+install.packages("NbClust")
+install.packages("factoextra")
+install.packages("skmeans")
+```
+
+# Load data
+
+```{r}
+# Le lien pour télécharger les deux formats de données ainsi que les labels.
+url <- "https://cifre.s3.eu-north-1.amazonaws.com/bbc_dataset.mat"
+# Définir le nom du fichier de destination.
+destination_file <- "bbc_dataset.mat"
+# Télécharger le fichier.
+download.file(url, destfile = destination_file, method = "auto")
+install.packages("R.matlab")
+library(R.matlab)
+bbc_dataset <- readMat(destination_file)
+bbc_jose <- bbc_dataset$jose
+bbc_doc_term <- bbc_dataset$doc.term
+bbc_labels <- as.vector(bbc_dataset$labels)
+```
+
+```{r}
+dim(bbc_jose)
+```
+
+```{r}
+dim(bbc_doc_term)
+```
+
+Quelle est la dimension de chaque dataset (nombre documents, nombre de mots/taille de la dimension) ?
+Le 1er dataset (la matrice document-terme, la variable bbc_doc_term)
+- nombre documents: 2225
+- nombre de mots: 2000
+Le 2eme dataset (la matrice des embeddings des documents, la variable bbc_jose)
+- nombre documents: 2225
+- taille de la dimension: 100
+
+# Clustering
+
+```{r}
+# TODO: explore different values of the parameters of skmeans and the other clustering algorithms
+```
+
+## K-means
+
+```{r}
+# we use nbclust, and k = 5
+library(NbClust)
+set.seed(123)
+res.kmeans <- kmeans(bbc_jose, 5, nstart = 25)
+
+# # we use fviz_cluster to visualize the clusters without points labels
+# library(factoextra)
+# fviz_cluster(res.kmeans, data = bbc_jose, ellipse.type = "norm", 
+#              palette = "jco", ggtheme = theme_minimal(),
+#              main = "K-means clustering of documents")
+
+# confusion matrix
+table(res.kmeans$cluster, bbc_labels)
+```
+## Spherical K-means
+
+```{r}
+# we use skmeans, and k = 5
+library(skmeans)
+set.seed(123)
+res.skmeans <- skmeans(bbc_jose, 5)
+# confusion matrix
+table(res.skmeans$cluster, bbc_labels)
+
+```
+
+## Hierarchical clustering
+
+```{r}
+# we use hclust, and k = 5
+res.hclust <- hclust(dist(bbc_jose), method = "ward.D2")
+# confusion matrix
+table(cutree(res.hclust, 5), bbc_labels)
+```
+
+```{r}
+```
+
+```{r}
+```
+
